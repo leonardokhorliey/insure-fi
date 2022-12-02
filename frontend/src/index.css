@@ -499,5 +499,15 @@ footer > div > div > div {
   justify-content: space-between;
 }
 
+#notify-tag {
+  background-color: rgb(110, 179, 236);
+  width: 100%;
+  border-radius: 5px;
+  color: white;
+  padding: 20px auto;
+  font-size: 0.875rem;
+  
+}
+
 
 

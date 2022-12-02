@@ -36,6 +36,7 @@ function App() {
   const [tokenContract, setTokenContract] = useState({});
   const [verifierContract, setVerifierContract] = useState({});
   const [insuranceContract, setInsuranceContract] = useState({});
+  const [erc20Contract, setErc20Contract] = useState({});
   const [web3, setWeb3] = useState();
   const [balance, setBalance] = useState();
   const [USDTBalance, setUSDTBalance] = useState();
@@ -149,6 +150,8 @@ function App() {
     setVerifierContract(verifierContract);
 
     setInsuranceContract(insuranceContract);
+
+    setErc20Contract(erc20Contract);
     await getNativeChainBalance(web3, address);
     setUSDTBalance(convertToEther(web3, await erc20Contract.methods.balanceOf(address).call()));
     // await getUserType(verifierContract, tokenContract, address);
@@ -216,6 +219,37 @@ function App() {
       alert(e.message);
     }
   }
+
+  const registerAsVerifier = async (docsURI, tokenType, depositAmount) => {
+    try {
+      await verifierContract.methods.registerAsVerifier(docsURI, depositAmount).send({from: selectedAccount});
+      alert("Registered successfully. Wait for approval now");
+    } catch (e) {
+      alert(e.message);
+    }
+  }
+
+  const makeClaim = async(docsURI, tokenType, valuation) => {
+
+  }
+
+  const callImageUploadFunction = async (docsURI, tokenType, valuation, functionIdentifier) => {
+    const functionMappings = {
+      'registerAsVerifier': registerAsVerifier,
+      'registerForInsurance': registerForInsurance,
+      'makeClaim': makeClaim
+    }
+
+    await functionMappings[functionIdentifier](docsURI, tokenType, valuation);
+  }
+  
+  const approveContractForAmount = async (amount, contract) => {
+    try {
+      await erc20Contract.methods.approve(contract.address, convertToEther(web3, amount)).send({from: selectedAccount});
+    } catch (e) {
+      alert(e.message);
+    }
+  }
   
 
 
@@ -233,7 +267,7 @@ function App() {
         <Profile address={selectedAccount} balances = {{eth: balance, usdt: USDTBalance}} disconnectWallet={disconnectWallet}/>
       } />
       <Route path= "/packages/:packageType" element = {
-        <PackageDetail packages={packages} signedIn={isSignedIn} connectWallet={() => connectWallet()} balance={balance} address={selectedAccount} setUploadedDocsURI={registerForInsurance} />
+        <PackageDetail packages={packages} signedIn={isSignedIn} connectWallet={() => connectWallet()} balance={balance} address={selectedAccount} setUploadedDocsURI={callImageUploadFunction} />
       } />
       <Route path= "/packages" element = {
         <Layout children={<PackageList packages= {packages}/>} signedIn={isSignedIn} connectWallet={() => connectWallet()} balance={balance} address={selectedAccount}/>

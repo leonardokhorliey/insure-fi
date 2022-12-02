@@ -43,7 +43,7 @@ contract Verifier is Ownable {
     function registerAsVerifier(string memory profileDocURI, uint contributionAmount) public {
         require(enrolledAsVerifier(msg.sender) == -1, "Previously attempted enroll as verifier");
 
-        usdtContract.transfer(poolAddress, contributionAmount);
+        usdtContract.transferFrom(msg.sender, poolAddress, contributionAmount);
 
         verifierApplications.push(VerifierApplication(msg.sender, profileDocURI, 0));
     }
