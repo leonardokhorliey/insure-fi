@@ -137,6 +137,10 @@ contract InsurancePool {
         );
     }
 
+    function getRegistrations() public view returns (Registration[] memory) {
+        return registrations;
+    }
+
     function enrolmentStatus(address _user, uint256 _tokenType)
         private
         view

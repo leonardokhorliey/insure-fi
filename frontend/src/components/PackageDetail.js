@@ -2,10 +2,22 @@ import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import Layout from './Layout';
 import FileUploads from './fileUploads';
+import PaymentModal from './PaymentModal';
 
-const PackageDetail = ({packages, address, balance, connectWallet, signedIn, setUploadedDocsURI, isEnrolled}) => {
+const PackageDetail = ({packages, 
+    address, 
+    balance, 
+    connectWallet, 
+    signedIn, 
+    setUploadedDocsURI, 
+    isEnrolled,
+    approve,
+    doPayment,
+    approvalDone
+}) => {
 
     const {packageType} = useParams();
+    const [paymentSet, setPaymentSet] = useState(false);
 
     console.log(packageType);
 
@@ -23,6 +35,10 @@ const PackageDetail = ({packages, address, balance, connectWallet, signedIn, set
         img: ""
     });
 
+    const makePayment = () => {
+        setPaymentSet(true);
+    }
+
 
     useEffect(() => {
         // console.log(packageType);
@@ -34,8 +50,11 @@ const PackageDetail = ({packages, address, balance, connectWallet, signedIn, set
     
 
     return (
+        <>
+        {paymentSet && <PaymentModal amount={pkg.valuationAmount} approveAmount={approve} makePayment={doPayment} isApproved={approvalDone} closeModal={()=> setPaymentSet(false)} />}
         <Layout children =
         {<div id="package-detail">
+        
         {isEnrolled && <div id="notify-tag">
             <p>You have registered for this package</p>
         </div>}
@@ -61,18 +80,23 @@ const PackageDetail = ({packages, address, balance, connectWallet, signedIn, set
                     <p>
                         {pkg.description}
                     </p>
+
+                    {isEnrolled && <button onClick={makePayment}>
+                        Pay Monthly Premium
+                    </button>}
                 </div>
             </div>}
         </section>
-        <FileUploads setUploadedDocsURI = {setUploadedDocsURI} address={address} packageType={packageType}/>
+        
+        <FileUploads setUploadedDocsURI = {setUploadedDocsURI} address={address} packageType={packageType} page={isEnrolled ? 'claim': 'detail'}/>
     </div>} address={address} balance={balance} connectWallet={connectWallet} signedIn={signedIn} />
         
-    )
+    </>)
 
 }
 
 PackageDetail.defaultProps = {
-    isEnrolled: false
+    isEnrolled: true
 }
 
 

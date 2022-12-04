@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 
 
 const Dashboard = ({balances, packagesEnrolled, claimsMade, address}) => {
@@ -139,7 +140,7 @@ const Dashboard = ({balances, packagesEnrolled, claimsMade, address}) => {
                                         </p>
                                     </div>
                                     <button>
-                                        Make a Claim
+                                        <Link style={{ textDecoration: 'none', fontFamily: 'Montserrat', fontWeight: 300 }} to= {`/packages/${idx}`}>Make a Claim</Link>
                                     </button>
                                 </div>
                             </div>

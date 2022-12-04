@@ -242,6 +242,14 @@ function App() {
 
     await functionMappings[functionIdentifier](docsURI, tokenType, valuation);
   }
+
+  const payPremium = async (amount, registrationId) => {
+    try {
+      await insuranceContract.methods.payPremium(amount, registrationId).send({from: selectedAccount});
+    } catch (e) {
+      alert(e.message);
+    }
+  }
   
   const approveContractForAmount = async (amount, contract) => {
     try {
@@ -267,7 +275,14 @@ function App() {
         <Profile address={selectedAccount} balances = {{eth: balance, usdt: USDTBalance}} disconnectWallet={disconnectWallet}/>
       } />
       <Route path= "/packages/:packageType" element = {
-        <PackageDetail packages={packages} signedIn={isSignedIn} connectWallet={() => connectWallet()} balance={balance} address={selectedAccount} setUploadedDocsURI={callImageUploadFunction} />
+        <PackageDetail 
+        packages={packages} 
+        signedIn={isSignedIn} 
+        connectWallet={() => connectWallet()} 
+        balance={balance} 
+        address={selectedAccount} 
+        setUploadedDocsURI={callImageUploadFunction}
+        payPremium={payPremium} />
       } />
       <Route path= "/packages" element = {
         <Layout children={<PackageList packages= {packages}/>} signedIn={isSignedIn} connectWallet={() => connectWallet()} balance={balance} address={selectedAccount}/>
