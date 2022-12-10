@@ -14,6 +14,7 @@ import ERC20Contract from './abis/ERC20Mock.json';
 import InsuranceContract from './abis/Insurance.json';
 import convertToEther from './helpers/convertToEther';
 import PackageList from './components/PackageList';
+import VerifierRegister from './components/VerifierRegister';
 
 // dotenv.config()
 
@@ -210,6 +211,13 @@ function App() {
 
   }
 
+  const setUploadedDocsURI = (docsURI, tokenType, valuation, callType) => {
+    if (callType === 'registerForInsurance') registerForInsurance(docsURI, tokenType, valuation)
+    else if (callType === 'registerAsVerifier') registerAsVerifier(docsURI, depositAmount);
+    else makeClaim(docsURI, tokenType, valuation)
+  }
+
+
   const registerForInsurance = async(docsURI, tokenType, valuation) => {
     try {
       await insuranceContract.methods.registerForInsurance(docsURI, tokenType, (valuation*100000000).toString()).send({from: selectedAccount});
@@ -220,7 +228,7 @@ function App() {
     }
   }
 
-  const registerAsVerifier = async (docsURI, tokenType, depositAmount) => {
+  const registerAsVerifier = async (docsURI, depositAmount) => {
     try {
       await verifierContract.methods.registerAsVerifier(docsURI, depositAmount).send({from: selectedAccount});
       alert("Registered successfully. Wait for approval now");
@@ -286,6 +294,16 @@ function App() {
       } />
       <Route path= "/packages" element = {
         <Layout children={<PackageList packages= {packages}/>} signedIn={isSignedIn} connectWallet={() => connectWallet()} balance={balance} address={selectedAccount}/>
+        
+      } />
+      <Route path= "/verifier/register" element = {
+        <Layout 
+        children={<VerifierRegister setUploadedDocsURI={setUploadedDocsURI} 
+        address={selectedAccount} approve={approveContractForAmount} doPayment={payPremium}/>} 
+        signedIn={isSignedIn} 
+        connectWallet={() => connectWallet()} 
+        balance={balance} 
+        address={selectedAccount}/>
         
       } />
     </Routes>

@@ -3,6 +3,7 @@ pragma solidity ^0.8.6;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "./USDTInterface.sol";
+import "./InsurancePool.sol";
 
 
 contract Verifier is Ownable {
@@ -12,6 +13,7 @@ contract Verifier is Ownable {
     struct VerifierApplication {
         address user;
         string supportingDocsURI;
+        uint contributionAmount;
         uint status;
     }
 
@@ -45,7 +47,7 @@ contract Verifier is Ownable {
 
         usdtContract.transferFrom(msg.sender, poolAddress, contributionAmount);
 
-        verifierApplications.push(VerifierApplication(msg.sender, profileDocURI, 0));
+        verifierApplications.push(VerifierApplication(msg.sender, profileDocURI, contributionAmount, 0));
     }
 
     function isVerifier(address addr_) public view returns (bool) {
@@ -91,6 +93,44 @@ contract Verifier is Ownable {
         blackListedVerifiers[_verifier] = true;
         emit BlacklistVerifier(_verifier);
     }
+
+
+    function getVerifierReward(address _verifier) public view returns (uint256 reward) {
+
+        uint currentVerifierActionCount = 0;
+        uint currentVerifierContribution = 0;
+        uint totalContribution = 0;
+        uint totalActionCount = 0;
+
+        for (uint i; i < verifierApplications.length; i++) {
+            if (verifierApplications[i].status == 1) {
+
+                uint actionCount = InsurancePool(poolAddress).verifierActionCount(verifierApplications[i].user);
+                uint contribution = verifierApplications[i].contributionAmount;
+                if (verifierApplications[i].user == _verifier) {
+
+                    currentVerifierActionCount = actionCount;
+                    currentVerifierContribution = contribution;
+                }
+
+                totalContribution += contribution;
+
+                totalActionCount = actionCount;
+            }
+        }
+
+        uint ratio = currentVerifierActionCount * currentVerifierContribution * 1e18 /(totalActionCount * totalContribution);
+
+        reward = ratio * totalContribution / 1e18;
+    }
+
+
+    // function payVerifierReward(address _verifier) external onlyOwner {
+
+    //     uint256 reward = getVerifierReward(_verifier);
+
+    //     InsurancePool(poolAddress).
+    // }
 
 
 

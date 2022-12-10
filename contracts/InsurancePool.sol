@@ -23,9 +23,10 @@ contract InsurancePool {
     Claim[] public claims;
 
     mapping(uint256 => address[]) tokenTypeToEnrolledUsers; //Token Type represents the tokenId
+    mapping(uint256 => mapping(address => uint256)) tokenTypeToUserToRegId;
     mapping(uint256 => RegistrationVerifiers) registrationVerifiers;
-    mapping(uint256 => ClaimVerifiers) claimVerifiers; //generate unique random key
-    mapping(address => uint256) verifierActionCount;
+    mapping(uint256 => ClaimVerifiers) claimVerifiers; 
+    mapping(address => uint256) public verifierActionCount;
     mapping(address => mapping(bytes => uint256)) contributionPoolAmounts;
     mapping(address => Registration[]) public userToRegistration;
     mapping(address => Claim[]) public userToClaim;
@@ -187,6 +188,7 @@ contract InsurancePool {
                 1e18;
 
             tokenTypeToEnrolledUsers[reg.tokenType].push(reg.user);
+            tokenTypeToUserToRegId[reg.tokenType][msg.sender] = _registrationId;
         }
 
         verifierActionCount[msg.sender] += 1;
@@ -242,8 +244,10 @@ contract InsurancePool {
         return (sum * 1e18) / count;
     }
 
-    function payPremium(uint256 _usdtAmount, uint256 _registrationId) public {
-        Registration memory reg = registrations[_registrationId];
+    function payPremium(uint256 _usdtAmount, uint256 _tokenType) public {
+
+        uint256 registrationId = tokenTypeToUserToRegId[_tokenType][msg.sender];
+        Registration memory reg = registrations[registrationId];
         uint256 premiumPercentage = tokenContract
             .getPackageType(reg.tokenType)
             .premiumPercentage;
@@ -265,7 +269,6 @@ contract InsurancePool {
         uint balanceOfToken = tokenContract.balanceOf(msg.sender, tokenType);
         uint exceedings = tokenContract.exceedingAmounts(msg.sender, tokenType);
         //Check the balance for the tokenType specified
-        //TODO Verify that you meet up with your monthly subscription
         require (balanceOfToken * 5 > (_amount - balanceOfToken)*10 && (exceedings * 5) > (_amount - balanceOfToken)*10, "Not sufficient contribution made to make this claim");
         claims.push(Claim(
             _docURI,
@@ -298,7 +301,15 @@ contract InsurancePool {
     }
 
 
+
+    function payoutVerifier(address verifier, uint256 amount) external {
+
+        require(msg.sender == address(verifierContract), "Unauthorized");
+
+        usdtContract.transfer(verifier, amount);
+    }
+
+
 }
 
-//Technical Debt
-//We need to mint the token type to the user when a user pays for the subscription
+

@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { FaTrash } from 'react-icons/fa'
 import uploadToIpfs from '../helpers/moralis';
 
-const FileUploads = ({setUploadedDocsURI, address, packageType}) => {
+const FileUploads = ({setUploadedDocsURI, address, packageType, page}) => {
     const [images, setImages] = useState([]);
     const [valuation, setValuation] = useState()
     const [ipfsObject, setipfsObject] = useState({

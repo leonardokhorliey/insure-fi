@@ -12,7 +12,7 @@ const NavBar = ({address, balance, signedIn, connectWallet}) => {
                 <h1 id="logo-text">
                     <Link style={{ textDecoration: 'none', fontFamily: 'Raleway', fontWeight: 800 }} to="/">
                         
-                            De-Insure
+                            Insure-Fi
                     
                     </Link>
                 </h1>
